@@ -31,15 +31,22 @@ const float filterAlpha = 0.2;
 
 void SendCommandsTask(void *parameter) {
   for (;;) {
-    if (Serial.available() >= sizeof(CommandMessage)) {
-      // Create a temporary buffer
-      uint8_t buffer[sizeof(CommandMessage)];
-
-      // Read the exact number of bytes needed
-      Serial.readBytes(buffer, sizeof(CommandMessage));
-
-      // Copy buffer into the command struct
-      memcpy(&command, buffer, sizeof(CommandMessage));
+    if (Serial.available() >= 7) {
+      if (Serial.peek() == 0xAA) {
+        Serial.read(); // Discard the header byte (0xAA)
+        // Create a temporary buffer
+        uint8_t buffer[sizeof(CommandMessage)];
+  
+        // Read the exact number of bytes needed
+        Serial.readBytes(buffer, sizeof(CommandMessage));
+  
+        // Copy buffer into the command struct
+        memcpy(&command, buffer, sizeof(CommandMessage));
+      }
+      else {
+        // Not a header. Discard 1 byte and try again in the next loop
+        Serial.read();
+      }
     } else {
       // read joystick
       int rawX = constrain(analogRead(X_AXIS_JOYSTICK_PIN) - offsetX, 0, 4095);
