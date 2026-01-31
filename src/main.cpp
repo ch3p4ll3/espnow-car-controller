@@ -6,12 +6,12 @@
 #include <structures.h>
 
 // REPLACE WITH YOUR RECEIVER MAC Address
-uint8_t carAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+uint8_t carAddress[] = {0x48, 0xE7, 0x29, 0x89, 0x50, 0x64};
 
 TaskHandle_t SendCommandsTaskHandle = NULL;
 
-const uint8_t X_AXIS_JOYSTICK_PIN = 36;
-const uint8_t Y_AXIS_JOYSTICK_PIN = 39;
+const uint8_t X_AXIS_JOYSTICK_PIN = 32;
+const uint8_t Y_AXIS_JOYSTICK_PIN = 33;
 const uint8_t JOYSTICK_BUTTON_PIN = 34;
 
 // Create a struct_message called myData
@@ -115,15 +115,19 @@ void calibrateJoystick() {
 // callback function that will be executed when data is received
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   memcpy(&telemetry, incomingData, sizeof(telemetry));
-  Serial.printf("Telemetry received!");
 }
 
 void setup() {
   // Init Serial Monitor
   Serial.begin(115200);
 
+  pinMode(X_AXIS_JOYSTICK_PIN, INPUT);
+  pinMode(Y_AXIS_JOYSTICK_PIN, INPUT);
+  pinMode(JOYSTICK_BUTTON_PIN, INPUT_PULLUP);
+
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
+  Serial.println(WiFi.macAddress());
 
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK) {
