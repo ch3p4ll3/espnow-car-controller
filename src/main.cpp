@@ -3,16 +3,13 @@
 #include <WiFi.h>
 #include <esp_now.h>
 
+#include <config.h>
 #include <structures.h>
 
 // REPLACE WITH YOUR RECEIVER MAC Address
 uint8_t carAddress[] = {0x48, 0xE7, 0x29, 0x89, 0x50, 0x64};
 
 TaskHandle_t SendCommandsTaskHandle = NULL;
-
-const uint8_t X_AXIS_JOYSTICK_PIN = 32;
-const uint8_t Y_AXIS_JOYSTICK_PIN = 33;
-const uint8_t JOYSTICK_BUTTON_PIN = 34;
 
 // Create a struct_message called myData
 CommandMessage command;
@@ -25,9 +22,6 @@ int offsetY = 0;
 
 float smoothThrottle = 0;
 float smoothSteering = 0;
-// filterAlpha: 0.1 = very smooth but slight lag, 0.9 = raw and twitchy.
-// 0.2 is the "sweet spot" for 10ms control.
-const float filterAlpha = 0.2;
 
 void SendCommandsTask(void *parameter) {
   for (;;) {
@@ -64,9 +58,9 @@ void SendCommandsTask(void *parameter) {
 
       // EMA Filter
       smoothThrottle =
-          (filterAlpha * throttle) + ((1.0 - filterAlpha) * smoothThrottle);
+          (FILTER_ALPHA * throttle) + ((1.0 - FILTER_ALPHA) * smoothThrottle);
       smoothSteering =
-          (filterAlpha * steering) + ((1.0 - filterAlpha) * smoothSteering);
+          (FILTER_ALPHA * steering) + ((1.0 - FILTER_ALPHA) * smoothSteering);
 
       // Mixing logic using smoothed values
       int left = constrain(smoothThrottle + smoothSteering, -100, 100);
