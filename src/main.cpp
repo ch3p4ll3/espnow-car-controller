@@ -108,7 +108,13 @@ void calibrateJoystick() {
 
 // callback function that will be executed when data is received
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
+  TelemetryMessage telemetry;
   memcpy(&telemetry, incomingData, sizeof(telemetry));
+
+  const uint8_t header = 0xAA;
+
+  Serial.write(header);
+  Serial.write((uint8_t*)&telemetry, sizeof(telemetry));
 }
 
 void setup() {
