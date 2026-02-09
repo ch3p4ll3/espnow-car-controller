@@ -25,17 +25,15 @@ float smoothSteering = 0;
 
 void SendCommandsTask(void *parameter) {
   for (;;) {
-    if (Serial.available() >= 7) {
+    if (Serial.available() >= sizeof(SerialPacket)) {
       if (Serial.peek() == 0xAA) {
-        Serial.read(); // Discard the header byte (0xAA)
         // Create a temporary buffer
-        uint8_t buffer[sizeof(CommandMessage)];
+        SerialPacket temp;
   
         // Read the exact number of bytes needed
-        Serial.readBytes(buffer, sizeof(CommandMessage));
-  
-        // Copy buffer into the command struct
-        memcpy(&command, buffer, sizeof(CommandMessage));
+        Serial.readBytes((uint8_t *)&temp, sizeof(SerialPacket));
+
+        command = temp.data;
       }
       else {
         // Not a header. Discard 1 byte and try again in the next loop
